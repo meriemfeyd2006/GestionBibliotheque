@@ -197,8 +197,10 @@
                                     <th class="px-6 py-4">Email</th>
                                     <th class="px-6 py-4">Nom</th>
                                     <th class="px-6 py-4">Prénom</th>
+                                    <th class="px-6 py-4">Téléphone</th>
                                     <th class="px-6 py-4">Adresse</th>
                                     <th class="px-6 py-4">Inscription</th>
+                                    <th class="px-6 py-4">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-border-light">
@@ -208,12 +210,32 @@
                                         <td class="px-6 py-4">{{ client.email }}</td>
                                         <td class="px-6 py-4">{{ client.nom }}</td>
                                         <td class="px-6 py-4">{{ client.prenom }}</td>
+                                        <td class="px-6 py-4">{{ client.telephone }}</td>
                                         <td class="px-6 py-4">{{ client.adresse }}</td>
                                         <td class="px-6 py-4">{{ client.dateInscription }}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="inline-flex items-center gap-2">
+                                                <button onclick="openEditModal({{ client.id }}, '{{ client.nom|escapejs }}', '{{ client.prenom|escapejs }}', '{{ client.email|escapejs }}', '{{ client.telephone|escapejs }}', '{{ client.adresse|escapejs }}')" class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors">
+                                                    <i class="fas fa-pen"></i>
+                                                    Modifier
+                                                </button>
+                                                <form method="post" action="{% url 'admin_client_delete' client.id %}" onsubmit="return confirmDelete('{{ client.nom|escapejs }} {{ client.prenom|escapejs }}');" class="inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-danger/10 text-danger text-xs font-medium hover:bg-danger/20 transition-colors">
+                                                        <i class="fas fa-trash"></i>
+                                                        Supprimer
+                                                    </button>
+                                                </form>
+                                                <a href="{% url 'admin_client_detail' client.id %}" class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 transition-colors">
+                                                    <i class="fas fa-eye"></i>
+                                                    Détails
+                                                </a>
+                                            </div>
+                                        </td>
                                     </tr>
                                 {% empty %}
                                     <tr>
-                                        <td colspan="6" class="px-6 py-10 text-center text-text-secondary">Aucun client enregistré pour le moment.</td>
+                                        <td colspan="8" class="px-6 py-10 text-center text-text-secondary">Aucun client enregistré pour le moment.</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -221,6 +243,64 @@
                     </div>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- Modal de modification -->
+    <div id="editModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-card-white rounded-3xl shadow-2xl max-w-md w-full mx-4 p-6 border border-border-light">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-semibold text-text-main">Modifier le client</h2>
+                <button onclick="closeEditModal()" class="text-text-secondary hover:text-text-main transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="editForm" method="post" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" id="clientId" name="client_id">
+
+                <div>
+                    <label class="block text-sm font-medium text-text-main mb-1">Nom</label>
+                    <input type="text" id="editNom" name="nom" class="w-full rounded-lg border border-border-light px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-main mb-1">Prénom</label>
+                    <input type="text" id="editPrenom" name="prenom" class="w-full rounded-lg border border-border-light px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-main mb-1">Email</label>
+                    <input type="email" id="editEmail" name="email" class="w-full rounded-lg border border-border-light px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-main mb-1">Téléphone</label>
+                    <input type="text" id="editTelephone" name="telephone" class="w-full rounded-lg border border-border-light px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-main mb-1">Adresse</label>
+                    <input type="text" id="editAdresse" name="adresse" class="w-full rounded-lg border border-border-light px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-main mb-1">Mot de passe</label>
+                    <input type="password" id="editMotDePasse" name="motDePasse" placeholder="Laisser vide pour conserver l'actuel" class="w-full rounded-lg border border-border-light px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                </div>
+
+                <div class="flex items-center gap-3 pt-4">
+                    <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary/90 transition-colors">
+                        <i class="fas fa-save"></i>
+                        Enregistrer
+                    </button>
+                    <button type="button" onclick="closeEditModal()" class="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-200 transition-colors">
+                        <i class="fas fa-times"></i>
+                        Annuler
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -233,6 +313,57 @@
             sidebar.classList.toggle('absolute');
             sidebar.classList.toggle('z-50');
             sidebar.classList.toggle('h-full');
+        });
+
+        function confirmDelete(clientName) {
+            return confirm(`Confirmer la suppression du client ${clientName} ?`);
+        }
+
+        function openEditModal(clientId, nom, prenom, email, telephone, adresse) {
+            document.getElementById('clientId').value = clientId;
+            document.getElementById('editNom').value = nom;
+            document.getElementById('editPrenom').value = prenom;
+            document.getElementById('editEmail').value = email;
+            document.getElementById('editTelephone').value = telephone;
+            document.getElementById('editAdresse').value = adresse;
+            document.getElementById('editMotDePasse').value = '';
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const clientId = document.getElementById('clientId').value;
+            const formData = new FormData(this);
+            
+            fetch(`/admine/clients/${clientId}/edit/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Erreur lors de la modification');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la modification');
+            });
+        });
+
+        // Fermer la modale en cliquant sur l'overlay
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
         });
     </script>
 </body>

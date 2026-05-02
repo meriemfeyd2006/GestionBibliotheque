@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier client - Administration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<base target="_blank">
+</head>
+<body class="bg-page-bg text-text-main font-sans antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <aside id="sidebar" class="w-64 bg-card-white border-r border-border-light flex flex-col transition-all duration-300 ease-in-out">
+            <div class="h-16 flex items-center px-6 border-b border-border-light">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="font-bold text-lg text-text-main">AdminPanel</span>
+                </div>
+            </div>
+            <nav class="flex-1 overflow-y-auto py-4 px-3">
+                <ul class="space-y-1">
+                    <li>
+                        <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-primary/10 text-primary{% else %}text-text-secondary hover:bg-border-lighter hover:text-text-main{% endif %}">
+                            <i class="fas fa-home w-5 text-center"></i>
+                            <span>Tableau de bord</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_clients' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 {% if request.resolver_match.url_name == 'admin_clients' %}bg-primary/10 text-primary{% else %}text-text-secondary hover:bg-border-lighter hover:text-text-main{% endif %}">
+                            <i class="fas fa-users w-5 text-center"></i>
+                            <span>Gestion Clients</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_livreurs' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 {% if request.resolver_match.url_name == 'admin_livreurs' %}bg-primary/10 text-primary{% else %}text-text-secondary hover:bg-border-lighter hover:text-text-main{% endif %}">
+                            <i class="fas fa-motorcycle w-5 text-center"></i>
+                            <span>Gestion Livreurs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_commandes' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 {% if request.resolver_match.url_name == 'admin_commandes' %}bg-primary/10 text-primary{% else %}text-text-secondary hover:bg-border-lighter hover:text-text-main{% endif %}">
+                            <i class="fas fa-shopping-cart w-5 text-center"></i>
+                            <span>Gestion Commandes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_empreinte' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 {% if request.resolver_match.url_name == 'admin_empreinte' %}bg-primary/10 text-primary{% else %}text-text-secondary hover:bg-border-lighter hover:text-text-main{% endif %}">
+                            <i class="fas fa-fingerprint w-5 text-center"></i>
+                            <span>Gestion Empreinte</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_reservations' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 {% if request.resolver_match.url_name == 'admin_reservations' %}bg-primary/10 text-primary{% else %}text-text-secondary hover:bg-border-lighter hover:text-text-main{% endif %}">
+                            <i class="fas fa-calendar-alt w-5 text-center"></i>
+                            <span>Gestion Réservations</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_paiements' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 {% if request.resolver_match.url_name == 'admin_paiements' %}bg-primary/10 text-primary{% else %}text-text-secondary hover:bg-border-lighter hover:text-text-main{% endif %}">
+                            <i class="fas fa-credit-card w-5 text-center"></i>
+                            <span>Gestion Paiements</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="p-3 border-t border-border-light">
+                <form method="post" action="{% url 'admin_logout' %}">
+                    <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-danger hover:bg-danger/10 transition-colors">
+                        <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                        <span>Déconnexion</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="h-16 bg-card-white border-b border-border-light flex items-center justify-between px-6">
+                <div class="flex items-center gap-4">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-lg hover:bg-border-lighter transition-colors">
+                        <i class="fas fa-bars text-text-secondary"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-semibold text-text-main">Modifier un client</h1>
+                        <p class="text-sm text-text-secondary">Mise à jour des informations du client.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="relative p-2 rounded-lg hover:bg-border-lighter transition-colors">
+                        <i class="fas fa-bell text-text-secondary"></i>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full"></span>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                            <i class="fas fa-user text-accent text-sm"></i>
+                        </div>
+                        <div class="hidden md:block">
+                            <p class="text-sm font-medium text-text-main">{{ request.user.username }}</p>
+                            <p class="text-xs text-text-secondary">Administrateur</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="flex-1 overflow-y-auto p-6">
+                <div class="rounded-3xl bg-card-white border border-border-light p-6 shadow-sm max-w-3xl mx-auto">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 class="text-2xl font-semibold text-text-main">Modifier {{ client.prenom }} {{ client.nom }}</h2>
+                            <p class="text-sm text-text-secondary">Met à jour les informations du client.</p>
+                        </div>
+                        <a href="{% url 'admin_clients' %}" class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200 transition-colors">
+                            <i class="fas fa-arrow-left"></i>
+                            Retour
+                        </a>
+                    </div>
+                    <form method="post" class="mt-6 space-y-5">
+                        {% csrf_token %}
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <label class="block">
+                                <span class="text-sm font-medium text-text-main">Nom</span>
+                                {{ form.nom }}
+                            </label>
+                            <label class="block">
+                                <span class="text-sm font-medium text-text-main">Prénom</span>
+                                {{ form.prenom }}
+                            </label>
+                        </div>
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <label class="block">
+                                <span class="text-sm font-medium text-text-main">Email</span>
+                                {{ form.email }}
+                            </label>
+                            <label class="block">
+                                <span class="text-sm font-medium text-text-main">Téléphone</span>
+                                {{ form.telephone }}
+                            </label>
+                        </div>
+                        <label class="block">
+                            <span class="text-sm font-medium text-text-main">Adresse</span>
+                            {{ form.adresse }}
+                        </label>
+                        <label class="block">
+                            <span class="text-sm font-medium text-text-main">Mot de passe</span>
+                            {{ form.motDePasse }}
+                            <p class="text-xs text-text-secondary mt-1">Laisser vide pour conserver le mot de passe actuel.</p>
+                        </label>
+                        <div class="flex items-center gap-3">
+                            <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark transition-colors">
+                                <i class="fas fa-save"></i>
+                                Enregistrer
+                            </button>
+                            <a href="{% url 'admin_clients' %}" class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-200 transition-colors">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('absolute');
+            sidebar.classList.toggle('z-50');
+            sidebar.classList.toggle('h-full');
+        });
+    </script>
+</body>
+</html>
