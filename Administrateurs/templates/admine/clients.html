@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients - Administration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#14b8a6',
+                        'page-bg': '#f8fafc',
+                        'card-white': '#ffffff',
+                        'text-main': '#1e293b',
+                        'text-secondary': '#94a3b8',
+                        'border-light': '#e2e8f0',
+                        'border-lighter': '#f1f5f9',
+                        success: '#10b981',
+                        danger: '#f43f5e',
+                        'danger-dark': '#e11d48',
+                        accent: '#8b5cf6',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<base target="_blank">
+</head>
+<body class="bg-page-bg text-text-main font-sans antialiased">
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-64 bg-card-white border-r border-border-light flex flex-col transition-all duration-300 ease-in-out">
+
+            <div class="h-16 flex items-center px-6 border-b border-border-light">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="font-bold text-lg text-text-main">AdminPanel</span>
+                </div>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto py-4 px-3">
+                <ul class="space-y-1">
+                    <li>
+                        <a href="{% url 'admin_dashboard' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 
+                                  {% if request.resolver_match.url_name == 'admin_dashboard' %}
+                                      bg-primary/10 text-primary
+                                  {% else %}
+                                      text-text-secondary hover:bg-border-lighter hover:text-text-main
+                                  {% endif %}">
+                            <i class="fas fa-home w-5 text-center"></i>
+                            <span>Tableau de bord</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_clients' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 
+                                  {% if request.resolver_match.url_name == 'admin_clients' %}
+                                      bg-primary/10 text-primary
+                                  {% else %}
+                                      text-text-secondary hover:bg-border-lighter hover:text-text-main
+                                  {% endif %}">
+                            <i class="fas fa-users w-5 text-center"></i>
+                            <span>Gestion Clients</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_livreurs' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 
+                                  {% if request.resolver_match.url_name == 'admin_livreurs' %}
+                                      bg-primary/10 text-primary
+                                  {% else %}
+                                      text-text-secondary hover:bg-border-lighter hover:text-text-main
+                                  {% endif %}">
+                            <i class="fas fa-motorcycle w-5 text-center"></i>
+                            <span>Gestion Livreurs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_commandes' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 
+                                  {% if request.resolver_match.url_name == 'admin_commandes' %}
+                                      bg-primary/10 text-primary
+                                  {% else %}
+                                      text-text-secondary hover:bg-border-lighter hover:text-text-main
+                                  {% endif %}">
+                            <i class="fas fa-shopping-cart w-5 text-center"></i>
+                            <span>Gestion Commandes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_empreinte' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 
+                                  {% if request.resolver_match.url_name == 'admin_empreinte' %}
+                                      bg-primary/10 text-primary
+                                  {% else %}
+                                      text-text-secondary hover:bg-border-lighter hover:text-text-main
+                                  {% endif %}">
+                            <i class="fas fa-fingerprint w-5 text-center"></i>
+                            <span>Gestion Empreinte</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_reservations' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 
+                                  {% if request.resolver_match.url_name == 'admin_reservations' %}
+                                      bg-primary/10 text-primary
+                                  {% else %}
+                                      text-text-secondary hover:bg-border-lighter hover:text-text-main
+                                  {% endif %}">
+                            <i class="fas fa-calendar-alt w-5 text-center"></i>
+                            <span>Gestion Réservations</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'admin_paiements' %}" 
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 
+                                  {% if request.resolver_match.url_name == 'admin_paiements' %}
+                                      bg-primary/10 text-primary
+                                  {% else %}
+                                      text-text-secondary hover:bg-border-lighter hover:text-text-main
+                                  {% endif %}">
+                            <i class="fas fa-credit-card w-5 text-center"></i>
+                            <span>Gestion Paiements</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="p-3 border-t border-border-light">
+                <form method="post" action="{% url 'admin_logout' %}">
+                    <button type="submit" 
+                            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium 
+                                   text-danger hover:bg-danger/10 transition-colors duration-200">
+                        <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                        <span>Déconnexion</span>
+                    </button>
+                </form>
+            </div>
+
+        </aside>
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+            <header class="h-16 bg-card-white border-b border-border-light flex items-center justify-between px-6">
+                <div class="flex items-center gap-4">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-lg hover:bg-border-lighter transition-colors">
+                        <i class="fas fa-bars text-text-secondary"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-semibold text-text-main">Gestion Clients</h1>
+                        <p class="text-sm text-text-secondary">Liste des clients enregistrés dans la base.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button class="relative p-2 rounded-lg hover:bg-border-lighter transition-colors">
+                        <i class="fas fa-bell text-text-secondary"></i>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full"></span>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                            <i class="fas fa-user text-accent text-sm"></i>
+                        </div>
+                        <div class="hidden md:block">
+                            <p class="text-sm font-medium text-text-main">{{ request.user.username }}</p>
+                            <p class="text-xs text-text-secondary">Administrateur</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-6">
+                <div class="space-y-6">
+                    <div class="rounded-3xl bg-card-white border border-border-light p-6 shadow-sm">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h2 class="text-2xl font-semibold text-text-main">Clients enregistrés</h2>
+                                <p class="text-sm text-text-secondary">Affiche les clients inscrits via le formulaire d'inscription.</p>
+                            </div>
+                            <div class="inline-flex items-center gap-3 text-sm text-text-secondary">
+                                <span class="px-3 py-2 rounded-full bg-primary/10 text-primary">Total : {{ clients|length }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl bg-card-white border border-border-light p-6 shadow-sm overflow-x-auto">
+                        <table class="min-w-full text-left text-sm text-text-main">
+                            <thead class="bg-slate-100 text-slate-500 uppercase text-xs tracking-[0.16em]">
+                                <tr>
+                                    <th class="px-6 py-4">ID</th>
+                                    <th class="px-6 py-4">Email</th>
+                                    <th class="px-6 py-4">Nom</th>
+                                    <th class="px-6 py-4">Prénom</th>
+                                    <th class="px-6 py-4">Adresse</th>
+                                    <th class="px-6 py-4">Inscription</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border-light">
+                                {% for client in clients %}
+                                    <tr class="hover:bg-primary/5">
+                                        <td class="px-6 py-4 font-medium text-text-main">{{ client.id }}</td>
+                                        <td class="px-6 py-4">{{ client.email }}</td>
+                                        <td class="px-6 py-4">{{ client.nom }}</td>
+                                        <td class="px-6 py-4">{{ client.prenom }}</td>
+                                        <td class="px-6 py-4">{{ client.adresse }}</td>
+                                        <td class="px-6 py-4">{{ client.dateInscription }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-10 text-center text-text-secondary">Aucun client enregistré pour le moment.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('absolute');
+            sidebar.classList.toggle('z-50');
+            sidebar.classList.toggle('h-full');
+        });
+    </script>
+</body>
+</html>

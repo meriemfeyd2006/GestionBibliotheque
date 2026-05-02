@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion - Biblion</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <div class="min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+      <div class="px-8 py-10">
+        <h1 class="text-3xl font-semibold text-slate-900 mb-3">Connexion</h1>
+        <p class="text-slate-500 mb-8">Connectez-vous avec votre email et mot de passe.</p>
+
+        {% if messages %}
+          <div class="space-y-3 mb-6">
+            {% for message in messages %}
+              <div class="rounded-2xl px-4 py-3 text-sm {% if message.tags == 'success' %}bg-teal-50 text-teal-700 border border-teal-100{% else %}bg-rose-50 text-rose-700 border border-rose-100{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'connexion' %}" class="space-y-5">
+          {% csrf_token %}
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-2">Email</label>
+            <input name="email" type="email" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-800 focus:border-teal-500 focus:ring-teal-200 focus:ring-2 outline-none" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-600 mb-2">Mot de passe</label>
+            <input name="password" type="password" required class="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-800 focus:border-teal-500 focus:ring-teal-200 focus:ring-2 outline-none" />
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <a href="{% url 'inscription' %}" class="text-sm text-teal-600 hover:text-teal-700">Pas encore de compte ? Inscription</a>
+            <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-teal-500 transition">Se connecter</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

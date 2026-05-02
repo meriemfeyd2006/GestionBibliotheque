@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Biblion — Gestion de Bibliothèque</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Playfair Display', 'serif'],
+          body: ['Outfit', 'sans-serif'],
+        },
+        colors: {
+          // Cool palette — icy blues, soft whites, muted teals
+          ice: { 50:'#f8fafc', 100:'#f1f5f9', 200:'#e2e8f0', 300:'#cbd5e1', 400:'#94a3b8', 500:'#64748b', 600:'#475569', 700:'#334155', 800:'#1e293b', 900:'#0f172a' },
+          teal: { 50:'#f0fdfa', 100:'#ccfbf1', 200:'#99f6e4', 300:'#5eead4', 400:'#2dd4bf', 500:'#14b8a6', 600:'#0d9488', 700:'#0f766e', 800:'#115e59', 900:'#134e4a' },
+          indigo: { 50:'#eef2ff', 100:'#e0e7ff', 200:'#c7d2fe', 300:'#a5b4fc', 400:'#818cf8', 500:'#6366f1', 600:'#4f46e5', 700:'#4338ca', 800:'#3730a3', 900:'#312e81' },
+          rose: { 50:'#fff1f2', 100:'#ffe4e6', 200:'#fecdd3', 300:'#fda4af', 400:'#fb7185', 500:'#f43f5e', 600:'#e11d48' },
+          sand: { 50:'#fafaf9', 100:'#f5f5f4', 200:'#e7e5e4', 300:'#d6d3d1', 400:'#a8a29e', 500:'#78716c' },
+        },
+        keyframes: {
+          fadeUp:{ '0%':{ opacity:'0', transform:'translateY(30px)' }, '100%':{ opacity:'1', transform:'translateY(0)' }},
+          fadeIn:{ '0%':{ opacity:'0' }, '100%':{ opacity:'1' }},
+          float:{ '0%,100%':{ transform:'translateY(0)' }, '50%':{ transform:'translateY(-12px)' }},
+          floatSlow:{ '0%,100%':{ transform:'translateY(0) rotate(0deg)' }, '50%':{ transform:'translateY(-8px) rotate(2deg)' }},
+          shimmer:{ '0%':{ backgroundPosition:'-200% 0' }, '100%':{ backgroundPosition:'200% 0' }},
+          breathe:{ '0%,100%':{ transform:'scale(1)' }, '50%':{ transform:'scale(1.02)' }},
+          slideInLeft:{ '0%':{ opacity:'0', transform:'translateX(-40px)' }, '100%':{ opacity:'1', transform:'translateX(0)' }},
+          slideInRight:{ '0%':{ opacity:'0', transform:'translateX(40px)' }, '100%':{ opacity:'1', transform:'translateX(0)' }},
+        },
+        animation: {
+          fadeUp:'fadeUp .7s cubic-bezier(.22,1,.36,1) both',
+          fadeIn:'fadeIn .8s ease both',
+          float:'float 5s ease-in-out infinite',
+          floatSlow:'floatSlow 7s ease-in-out infinite',
+          shimmer:'shimmer 3s ease-in-out infinite',
+          breathe:'breathe 4s ease-in-out infinite',
+          slideInLeft:'slideInLeft .6s ease both',
+          slideInRight:'slideInRight .6s ease both',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ font-family:'Outfit',sans-serif; background:#f8fafc; color:#1e293b; overflow-x:hidden; }
+
+  ::-webkit-scrollbar{ width:5px; }
+  ::-webkit-scrollbar-track{ background:#f1f5f9; }
+  ::-webkit-scrollbar-thumb{ background:#cbd5e1; border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover{ background:#94a3b8; }
+
+  /* Soft shadows */
+  .shadow-soft{ box-shadow:0 4px 20px rgba(148,163,184,0.08), 0 1px 3px rgba(148,163,184,0.05); }
+  .shadow-medium{ box-shadow:0 8px 32px rgba(148,163,184,0.12), 0 2px 8px rgba(148,163,184,0.06); }
+  .shadow-glow{ box-shadow:0 0 40px rgba(45,212,191,0.15), 0 4px 20px rgba(148,163,184,0.08); }
+  .shadow-indigo{ box-shadow:0 0 40px rgba(99,102,241,0.12), 0 4px 20px rgba(148,163,184,0.08); }
+
+  /* Glass light */
+  .glass{ background:rgba(255,255,255,0.7); backdrop-filter:blur(20px); border:1px solid rgba(226,232,240,0.6); }
+  .glass-strong{ background:rgba(255,255,255,0.85); backdrop-filter:blur(24px); border:1px solid rgba(226,232,240,0.8); }
+
+  /* Gradient text */
+  .text-teal-gradient{ background:linear-gradient(135deg,#2dd4bf 0%,#0d9488 50%,#6366f1 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .text-indigo-gradient{ background:linear-gradient(135deg,#6366f1 0%,#4338ca 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+  /* Card hover */
+  .lift-card{ transition:all .4s cubic-bezier(.22,1,.36,1); }
+  .lift-card:hover{ transform:translateY(-6px); box-shadow:0 24px 48px rgba(148,163,184,0.15), 0 0 0 1px rgba(45,212,191,0.1); }
+
+  /* Nav link */
+  .nav-link{ position:relative; }
+  .nav-link::after{ content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:linear-gradient(90deg,#2dd4bf,#6366f1); border-radius:1px; transition:width .3s ease; }
+  .nav-link:hover::after{ width:100%; }
+  .nav-link.active::after{ width:100%; }
+
+  /* Book spine 3D */
+  .spine-stack{ perspective:800px; }
+  .spine{ transition:all .5s cubic-bezier(.22,1,.36,1); transform-origin:center bottom; }
+  .spine-stack:hover .spine:nth-child(1){ transform:rotateY(-12deg) translateX(-6px) translateZ(10px); }
+  .spine-stack:hover .spine:nth-child(2){ transform:rotateY(-6deg) translateX(-3px) translateZ(5px); }
+  .spine-stack:hover .spine:nth-child(3){ transform:rotateY(0deg) translateZ(15px) scale(1.05); }
+  .spine-stack:hover .spine:nth-child(4){ transform:rotateY(6deg) translateX(3px) translateZ(5px); }
+  .spine-stack:hover .spine:nth-child(5){ transform:rotateY(12deg) translateX(6px) translateZ(10px); }
+
+  /* Reveal animation */
+  .reveal{ opacity:0; transform:translateY(40px); transition:all .8s cubic-bezier(.22,1,.36,1); }
+  .reveal.visible{ opacity:1; transform:translateY(0); }
+
+  /* Decorative blobs */
+  .blob{ border-radius:50%; filter:blur(80px); opacity:.5; }
+
+  /* Input focus */
+  .input-focus:focus{ outline:none; border-color:#2dd4bf; box-shadow:0 0 0 3px rgba(45,212,191,0.1); }
+
+  /* Dot pattern */
+  .dot-pattern{ background-image:radial-gradient(circle,#cbd5e1 0.5px,transparent 0.5px); background-size:24px 24px; }
+
+  /* Wave separator */
+  .wave{ position:absolute; bottom:0; left:0; right:0; }
+</style>
+<base target="_blank">
+</head>
+<body class="dot-pattern">
+
+<!-- ======================================================= -->
+<!--  NAVBAR                                                 -->
+<!-- ======================================================= -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass px-8 py-4">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="scrollToSection('home')">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center shadow-glow">
+        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <span class="font-display font-semibold text-slate-800 text-lg tracking-tight">Biblion</span>
+        <span class="block text-[9px] text-slate-400 uppercase tracking-[0.25em] -mt-0.5">Gestion de Bibliothèque</span>
+      </div>
+    </div>
+
+    <ul class="hidden md:flex items-center gap-10 list-none">
+      <li><a onclick="scrollToSection('home')" class="nav-link active text-xs font-medium text-slate-700 cursor-pointer transition-colors hover:text-teal-600 tracking-widest uppercase" id="nl-home">Accueil</a></li>
+      <li><a onclick="scrollToSection('about')" class="nav-link text-xs font-medium text-slate-400 cursor-pointer transition-colors hover:text-teal-600 tracking-widest uppercase" id="nl-about">À Propos</a></li>
+      <li><a onclick="scrollToSection('features')" class="nav-link text-xs font-medium text-slate-400 cursor-pointer transition-colors hover:text-teal-600 tracking-widest uppercase" id="nl-features">Fonctionnalités</a></li>
+      <li><a onclick="scrollToSection('contact')" class="nav-link text-xs font-medium text-slate-400 cursor-pointer transition-colors hover:text-teal-600 tracking-widest uppercase" id="nl-contact">Contact</a></li>
+    </ul>
+
+    <div class="hidden lg:flex items-center gap-3">
+          <a href="{% url 'connexion' %}"
+            class="px-6 py-3 rounded-xl text-white font-semibold 
+                  bg-gradient-to-r from-indigo-500 to-purple-600 
+                  shadow-lg hover:shadow-xl 
+                  hover:scale-105 transform transition duration-300">
+            Connexion
+          </a>
+
+          <a href="{% url 'inscription' %}"
+            class="px-6 py-3 rounded-xl font-semibold 
+                  border-2 border-indigo-500 text-indigo-600 
+                  hover:bg-indigo-500 hover:text-white 
+                  shadow-md hover:shadow-lg 
+                  hover:scale-105 transform transition duration-300">
+            Inscription
+          </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ======================================================= -->
+<!--  HERO                                                   -->
+<!-- ======================================================= -->
+<div id="page-home" class="page active">
+  <section class="relative min-h-screen flex items-center px-8 pt-24 pb-16 overflow-hidden">
+    <!-- Soft ambient blobs -->
+    <div class="absolute top-20 right-[10%] w-[500px] h-[500px] rounded-full bg-teal-200/30 blur-[100px]"></div>
+    <div class="absolute bottom-20 left-[5%] w-[400px] h-[400px] rounded-full bg-indigo-200/25 blur-[100px]"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-teal-100/20 blur-[120px]"></div>
+
+    <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+      <!-- Left -->
+      <div class="animate-fadeUp">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-100 rounded-full mb-8">
+          <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+          <span class="text-teal-600 text-[10px] font-medium tracking-wider uppercase">Application de Gestion</span>
+        </div>
+
+        <h1 class="font-display font-medium text-5xl lg:text-6xl text-slate-800 leading-[1.1] mb-6">
+          Votre bibliothèque<br/>
+          <span class="italic text-teal-gradient">réinventée.</span>
+        </h1>
+
+        <p class="text-slate-400 text-sm leading-relaxed mb-10 max-w-md font-light">
+          Une plateforme élégante et intuitive pour gérer, cataloguer et explorer votre collection. 
+          L'expérience de la bibliothèque moderne, à portée de main.
+        </p>
+
+        <div class="flex items-center gap-4 mb-12">
+          <a onclick="scrollToSection('features')" class="cursor-pointer group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-2xl text-sm font-medium shadow-glow hover:shadow-lg hover:from-teal-400 hover:to-teal-500 transition-all duration-300">
+            Découvrir
+            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </a>
+          <a href="{% url 'connexion' %}" class="px-8 py-4 bg-white text-slate-600 rounded-2xl text-sm font-medium shadow-soft border border-slate-100 hover:shadow-medium hover:text-teal-600 transition-all duration-300">
+            Connexion
+          </a>
+        </div>
+
+        <div class="flex items-center gap-8">
+          <div class="text-center">
+            <p class="font-display text-2xl text-slate-700">12,000+</p>
+            <p class="text-slate-300 text-[10px] uppercase tracking-widest mt-1">Ouvrages</p>
+          </div>
+          <div class="h-10 w-px bg-slate-200"></div>
+          <div class="text-center">
+            <p class="font-display text-2xl text-slate-700">40+</p>
+            <p class="text-slate-300 text-[10px] uppercase tracking-widest mt-1">Catégories</p>
+          </div>
+          <div class="h-10 w-px bg-slate-200"></div>
+          <div class="text-center">
+            <p class="font-display text-2xl text-slate-700">98%</p>
+            <p class="text-slate-300 text-[10px] uppercase tracking-widest mt-1">Satisfaction</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right — App Mockup -->
+      <div class="relative flex justify-center items-center animate-fadeIn" style="animation-delay:.3s">
+        <div class="relative w-80">
+          <!-- Main card -->
+          <div class="glass-strong rounded-3xl p-6 relative z-10 animate-float shadow-medium">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-teal-400"></div>
+                <span class="text-slate-400 text-[10px] tracking-widest uppercase">Collection</span>
+              </div>
+              <span class="text-teal-600 text-[10px] font-semibold">3,247 livres</span>
+            </div>
+
+            <!-- 3D Book spines -->
+            <div class="spine-stack flex items-end justify-center gap-1.5 mb-8 h-36">
+              <div class="spine w-9 rounded-t-lg bg-gradient-to-t from-indigo-300 to-indigo-200 shadow-soft" style="height:100px"></div>
+              <div class="spine w-9 rounded-t-lg bg-gradient-to-t from-teal-300 to-teal-200 shadow-soft" style="height:120px"></div>
+              <div class="spine w-11 rounded-t-lg bg-gradient-to-t from-slate-600 to-slate-500 shadow-medium" style="height:140px">
+                <div class="h-full flex flex-col items-center justify-center gap-1 pt-3">
+                  <div class="w-7 h-0.5 bg-white/30 rounded-full"></div>
+                  <span class="text-[7px] text-white/50 tracking-[0.2em] uppercase -rotate-90 whitespace-nowrap">Biblion</span>
+                  <div class="w-7 h-0.5 bg-white/30 rounded-full"></div>
+                </div>
+              </div>
+              <div class="spine w-9 rounded-t-lg bg-gradient-to-t from-rose-300 to-rose-200 shadow-soft" style="height:110px"></div>
+              <div class="spine w-9 rounded-t-lg bg-gradient-to-t from-slate-300 to-slate-200 shadow-soft" style="height:95px"></div>
+            </div>
+
+            <!-- Mini list -->
+            <div class="space-y-2">
+              <div class="flex items-center gap-3 p-3 rounded-xl bg-white/50 hover:bg-white transition-colors cursor-pointer shadow-soft">
+                <div class="w-8 h-10 rounded bg-gradient-to-br from-indigo-300 to-indigo-400 flex-shrink-0 shadow-sm"></div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-slate-700 text-[11px] font-medium truncate">Les Misérables</p>
+                  <p class="text-slate-400 text-[9px]">Victor Hugo • Roman</p>
+                </div>
+                <span class="text-[9px] font-medium px-2 py-0.5 bg-teal-50 text-teal-600 rounded-full">Dispo</span>
+              </div>
+              <div class="flex items-center gap-3 p-3 rounded-xl bg-white/50 hover:bg-white transition-colors cursor-pointer shadow-soft">
+                <div class="w-8 h-10 rounded bg-gradient-to-br from-teal-300 to-teal-400 flex-shrink-0 shadow-sm"></div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-slate-700 text-[11px] font-medium truncate">Le Petit Prince</p>
+                  <p class="text-slate-400 text-[9px]">Saint-Exupéry • Conte</p>
+                </div>
+                <span class="text-[9px] font-medium px-2 py-0.5 bg-teal-50 text-teal-600 rounded-full">Dispo</span>
+              </div>
+              <div class="flex items-center gap-3 p-3 rounded-xl bg-white/50 hover:bg-white transition-colors cursor-pointer shadow-soft">
+                <div class="w-8 h-10 rounded bg-gradient-to-br from-rose-300 to-rose-400 flex-shrink-0 shadow-sm"></div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-slate-700 text-[11px] font-medium truncate">1984</p>
+                  <p class="text-slate-400 text-[9px]">George Orwell • Dystopie</p>
+                </div>
+                <span class="text-[9px] font-medium px-2 py-0.5 bg-slate-100 text-slate-400 rounded-full">Emprunté</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating accent cards -->
+          <div class="absolute -top-6 -right-6 w-20 h-20 glass-strong rounded-2xl flex items-center justify-center animate-float shadow-medium" style="animation-delay:1s">
+            <div class="text-center">
+              <svg class="w-6 h-6 text-teal-500 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
+              <p class="text-slate-400 text-[8px] uppercase tracking-wider">Ajouter</p>
+            </div>
+          </div>
+          <div class="absolute -bottom-4 -left-8 w-28 h-16 glass-strong rounded-xl flex items-center justify-center gap-2 animate-float shadow-medium" style="animation-delay:2s">
+            <svg class="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <div>
+              <p class="text-slate-600 text-[10px] font-medium">Analytics</p>
+              <p class="text-slate-300 text-[8px]">+24% ce mois</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ======================================================= -->
+<!--  ABOUT                                                  -->
+<!-- ======================================================= -->
+<div id="page-about" class="page">
+  <section class="min-h-screen flex items-center px-8 py-20 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-teal-50/50 to-transparent"></div>
+    <div class="absolute top-40 right-0 w-[400px] h-[400px] rounded-full bg-indigo-100/40 blur-[100px]"></div>
+
+    <div class="max-w-7xl mx-auto w-full relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+        <!-- Left -->
+        <div class="reveal">
+          <div class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-full mb-8">
+            <span class="text-indigo-500 text-[10px] font-medium tracking-wider uppercase">Notre Vision</span>
+          </div>
+
+          <h2 class="font-display font-medium text-4xl lg:text-5xl text-slate-800 leading-tight mb-8">
+            L'élégance au service<br/>de la <span class="italic text-indigo-gradient">connaissance.</span>
+          </h2>
+
+          <p class="text-slate-400 text-sm leading-relaxed mb-6 font-light">
+            Biblion redéfinit l'expérience de gestion bibliothécaire. Nous croyons que la technologie doit 
+            sublimer le rapport aux livres, non le remplacer. Chaque détail est pensé pour évoquer 
+            le calme d'une bibliothèque d'exception.
+          </p>
+          <p class="text-slate-400 text-sm leading-relaxed mb-10 font-light">
+            De la catalogation intelligente aux recommandations personnalisées, nous offrons un outil 
+            aussi beau que fonctionnel.
+          </p>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div class="bg-white rounded-2xl p-5 text-center shadow-soft border border-slate-100">
+              <p class="font-display text-2xl text-teal-500 mb-1">12K+</p>
+              <p class="text-slate-300 text-[9px] uppercase tracking-widest">Ouvrages</p>
+            </div>
+            <div class="bg-white rounded-2xl p-5 text-center shadow-soft border border-slate-100">
+              <p class="font-display text-2xl text-indigo-500 mb-1">40+</p>
+              <p class="text-slate-300 text-[9px] uppercase tracking-widest">Genres</p>
+            </div>
+            <div class="bg-white rounded-2xl p-5 text-center shadow-soft border border-slate-100">
+              <p class="font-display text-2xl text-rose-400 mb-1">98%</p>
+              <p class="text-slate-300 text-[9px] uppercase tracking-widest">Satisfaction</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right — Feature Cards -->
+        <div class="space-y-4 reveal" style="transition-delay:.2s">
+          <div class="bg-white rounded-2xl p-6 flex items-start gap-5 lift-card cursor-pointer shadow-soft border border-slate-100">
+            <div class="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+            <div>
+              <h3 class="font-display text-lg text-slate-700 mb-1">Catalogue Intelligent</h3>
+              <p class="text-slate-400 text-xs leading-relaxed">Indexation par ISBN, tags personnalisés et recherche full-text instantanée.</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 flex items-start gap-5 lift-card cursor-pointer shadow-soft border border-slate-100">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-display text-lg text-slate-700 mb-1">Multi-Plateforme</h3>
+              <p class="text-slate-400 text-xs leading-relaxed">Accès synchronisé sur web, tablette et mobile. Votre bibliothèque vous suit.</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 flex items-start gap-5 lift-card cursor-pointer shadow-soft border border-slate-100">
+            <div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-display text-lg text-slate-700 mb-1">Recommandations IA</h3>
+              <p class="text-slate-400 text-xs leading-relaxed">Algorithme qui comprend vos goûts et suggère des pépites méconnues.</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 flex items-start gap-5 lift-card cursor-pointer shadow-soft border border-slate-100">
+            <div class="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-display text-lg text-slate-700 mb-1">Analytics Avancées</h3>
+              <p class="text-slate-400 text-xs leading-relaxed">Tableaux de bord élégants : tendances, taux d'emprunt, popularité.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ======================================================= -->
+<!--  FEATURES                                               -->
+<!-- ======================================================= -->
+<div id="page-features" class="page">
+  <section class="min-h-screen px-8 py-20 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50/60 to-transparent"></div>
+    <div class="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-teal-100/30 blur-[120px]"></div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+      <div class="text-center mb-16 reveal">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-100 rounded-full mb-6">
+          <span class="text-teal-600 text-[10px] font-medium tracking-wider uppercase">Fonctionnalités</span>
+        </div>
+        <h2 class="font-display font-medium text-4xl lg:text-5xl text-slate-800 mb-4">Une expérience <span class="italic text-teal-gradient">sans égale.</span></h2>
+        <p class="text-slate-400 text-sm max-w-lg mx-auto font-light">Chaque fonctionnalité allie esthétique raffinée et efficacité opérationnelle.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Card 1 -->
+        <div class="bg-white rounded-3xl p-8 lift-card cursor-pointer shadow-soft border border-slate-100 reveal">
+          <div class="flex items-end gap-2 mb-8 h-28">
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-indigo-300 to-indigo-200 shadow-sm" style="height:80px"></div>
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-teal-300 to-teal-200 shadow-sm" style="height:100px"></div>
+            <div class="w-9 rounded-t-lg bg-gradient-to-t from-slate-500 to-slate-400 shadow-medium" style="height:110px">
+              <div class="h-full flex items-center justify-center"><div class="w-5 h-0.5 bg-white/40 rounded-full"></div></div>
+            </div>
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-rose-300 to-rose-200 shadow-sm" style="height:90px"></div>
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-slate-300 to-slate-200 shadow-sm" style="height:75px"></div>
+          </div>
+          <span class="inline-block px-3 py-1 bg-teal-50 text-teal-600 text-[9px] font-semibold rounded-full tracking-widest uppercase mb-4">Gestion</span>
+          <h3 class="font-display text-xl text-slate-700 mb-3">Catalogue Avancé</h3>
+          <p class="text-slate-400 text-xs leading-relaxed mb-6">Import par lot, organisation par tags, collections et séries. Recherche instantanée.</p>
+          <div class="flex items-center gap-2 text-teal-500 text-xs font-medium">
+            <span>Explorer</span>
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-white rounded-3xl p-8 lift-card cursor-pointer shadow-soft border border-slate-100 reveal" style="transition-delay:.1s">
+          <div class="flex items-end gap-2 mb-8 h-28">
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-teal-300 to-teal-200 shadow-sm" style="height:95px"></div>
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-rose-300 to-rose-200 shadow-sm" style="height:75px"></div>
+            <div class="w-9 rounded-t-lg bg-gradient-to-t from-indigo-400 to-indigo-300 shadow-medium" style="height:110px">
+              <div class="h-full flex items-center justify-center"><div class="w-5 h-0.5 bg-white/40 rounded-full"></div></div>
+            </div>
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-slate-400 to-slate-300 shadow-sm" style="height:85px"></div>
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-teal-200 to-teal-100 shadow-sm" style="height:70px"></div>
+          </div>
+          <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-500 text-[9px] font-semibold rounded-full tracking-widest uppercase mb-4">Emprunts</span>
+          <h3 class="font-display text-xl text-slate-700 mb-3">Circulation Intelligente</h3>
+          <p class="text-slate-400 text-xs leading-relaxed mb-6">Prêts, réservations, retours automatisés. Notifications et historique complet.</p>
+          <div class="flex items-center gap-2 text-indigo-500 text-xs font-medium">
+            <span>Explorer</span>
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white rounded-3xl p-8 lift-card cursor-pointer shadow-soft border border-slate-100 reveal" style="transition-delay:.2s">
+          <div class="flex items-end gap-2 mb-8 h-28">
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-slate-400 to-slate-300 shadow-sm" style="height:70px"></div>
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-indigo-300 to-indigo-200 shadow-sm" style="height:90px"></div>
+            <div class="w-9 rounded-t-lg bg-gradient-to-t from-rose-400 to-rose-300 shadow-medium" style="height:110px">
+              <div class="h-full flex items-center justify-center"><div class="w-5 h-0.5 bg-white/40 rounded-full"></div></div>
+            </div>
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-teal-300 to-teal-200 shadow-sm" style="height:85px"></div>
+            <div class="w-7 rounded-t-lg bg-gradient-to-t from-indigo-200 to-indigo-100 shadow-sm" style="height:65px"></div>
+          </div>
+          <span class="inline-block px-3 py-1 bg-rose-50 text-rose-400 text-[9px] font-semibold rounded-full tracking-widest uppercase mb-4">Insights</span>
+          <h3 class="font-display text-xl text-slate-700 mb-3">Analytics & Rapports</h3>
+          <p class="text-slate-400 text-xs leading-relaxed mb-6">Visualisations élégantes : tendances, performance, comportement des lecteurs.</p>
+          <div class="flex items-center gap-2 text-rose-400 text-xs font-medium">
+            <span>Explorer</span>
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 reveal" style="transition-delay:.3s">
+        <div class="bg-white rounded-2xl p-6 text-center shadow-soft border border-slate-100">
+          <p class="font-display text-2xl text-teal-500 mb-1">12K</p>
+          <p class="text-slate-300 text-[9px] uppercase tracking-widest">Ouvrages catalogués</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 text-center shadow-soft border border-slate-100">
+          <p class="font-display text-2xl text-indigo-500 mb-1">40+</p>
+          <p class="text-slate-300 text-[9px] uppercase tracking-widest">Genres supportés</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 text-center shadow-soft border border-slate-100">
+          <p class="font-display text-2xl text-rose-400 mb-1">8K</p>
+          <p class="text-slate-300 text-[9px] uppercase tracking-widest">Lecteurs actifs</p>
+        </div>
+        <div class="bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl p-6 text-center shadow-glow">
+          <p class="font-display text-2xl text-white mb-1">Gratuit</p>
+          <p class="text-teal-100 text-[9px] uppercase tracking-widest">Pour démarrer</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ======================================================= -->
+<!--  CONTACT                                                -->
+<!-- ======================================================= -->
+<div id="page-contact" class="page">
+  <section class="min-h-screen px-8 py-20 relative overflow-hidden flex items-center">
+    <div class="absolute inset-0 bg-gradient-to-br from-teal-50/40 via-white to-indigo-50/40"></div>
+    <div class="absolute top-20 right-20 w-72 h-72 rounded-full bg-teal-200/30 blur-[100px]"></div>
+    <div class="absolute bottom-20 left-20 w-64 h-64 rounded-full bg-indigo-200/25 blur-[100px]"></div>
+
+    <div class="max-w-6xl mx-auto w-full relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <!-- Left -->
+        <div class="reveal">
+          <div class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-full mb-8">
+            <span class="text-indigo-500 text-[10px] font-medium tracking-wider uppercase">Contact</span>
+          </div>
+
+          <h2 class="font-display font-medium text-4xl lg:text-5xl text-slate-800 leading-tight mb-8">
+            Parlons de<br/><span class="italic text-indigo-gradient">votre projet.</span>
+          </h2>
+
+          <p class="text-slate-400 text-sm leading-relaxed mb-12 font-light max-w-md">
+            Vous souhaitez moderniser votre bibliothèque ? Notre équipe vous accompagne dans la mise en place 
+            d'une solution sur mesure, élégante et performante.
+          </p>
+
+          <div class="space-y-6">
+            <div class="flex items-center gap-5">
+              <div class="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/></svg>
+              </div>
+              <div>
+                <p class="text-slate-300 text-[9px] uppercase tracking-widest mb-1">Email</p>
+                <a href="mailto:hello@biblion.io" class="text-slate-700 text-sm hover:text-teal-500 transition-colors">hello@biblion.io</a>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-5">
+              <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498A1 1 0 0 1 21 15.72V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+              </div>
+              <div>
+                <p class="text-slate-300 text-[9px] uppercase tracking-widest mb-1">Téléphone</p>
+                <a href="tel:+212600000000" class="text-slate-700 text-sm hover:text-indigo-500 transition-colors">+212 600 000 000</a>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-5">
+              <div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>
+              </div>
+              <div>
+                <p class="text-slate-300 text-[9px] uppercase tracking-widest mb-1">Adresse</p>
+                <p class="text-slate-700 text-sm">Casablanca, Maroc</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right — Form -->
+        <div class="bg-white rounded-3xl p-8 shadow-medium border border-slate-100 reveal" style="transition-delay:.2s">
+          <h3 class="font-display text-xl text-slate-700 mb-8">Envoyez-nous un message</h3>
+          <div class="space-y-5">
+            <div>
+              <label class="block text-slate-400 text-[9px] uppercase tracking-widest mb-2">Nom complet</label>
+              <input type="text" placeholder="Votre nom…" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-700 text-sm placeholder-slate-300 outline-none input-focus transition-all"/>
+            </div>
+            <div>
+              <label class="block text-slate-400 text-[9px] uppercase tracking-widest mb-2">Email</label>
+              <input type="email" placeholder="votre@email.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-700 text-sm placeholder-slate-300 outline-none input-focus transition-all"/>
+            </div>
+            <div>
+              <label class="block text-slate-400 text-[9px] uppercase tracking-widest mb-2">Sujet</label>
+              <input type="text" placeholder="Votre sujet…" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-700 text-sm placeholder-slate-300 outline-none input-focus transition-all"/>
+            </div>
+            <div>
+              <label class="block text-slate-400 text-[9px] uppercase tracking-widest mb-2">Message</label>
+              <textarea rows="4" placeholder="Écrivez votre message…" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-700 text-sm placeholder-slate-300 outline-none input-focus transition-all resize-none"></textarea>
+            </div>
+            <button class="w-full py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white font-medium text-sm rounded-xl hover:from-teal-400 hover:to-teal-500 transition-all duration-300 shadow-glow">
+              Envoyer le message →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ======================================================= -->
+<!--  FOOTER                                                 -->
+<!-- ======================================================= -->
+<footer class="bg-white border-t border-slate-100 px-8 py-10">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center">
+        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <span class="font-display text-slate-700 text-sm font-medium">Biblion</span>
+        <span class="block text-[8px] text-slate-300 uppercase tracking-[0.2em]">Gestion de Bibliothèque</span>
+      </div>
+    </div>
+    <p class="text-slate-300 text-xs">© 2025 Biblion — Tous droits réservés</p>
+    <div class="flex items-center gap-6">
+      <a href="#" class="text-slate-300 text-xs hover:text-teal-500 transition-colors">Confidentialité</a>
+      <a href="#" class="text-slate-300 text-xs hover:text-teal-500 transition-colors">Conditions</a>
+      <a onclick="scrollToSection('contact')" class="text-slate-300 text-xs hover:text-teal-500 transition-colors cursor-pointer">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const pages = ['home','about','features','contact'];
+
+  function scrollToSection(id) {
+    const el = document.getElementById('page-'+id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    pages.forEach(p => {
+      const nl = document.getElementById('nl-'+p);
+      if(nl){ nl.classList.remove('active'); nl.classList.remove('text-slate-700'); nl.classList.add('text-slate-400'); }
+    });
+    const active = document.getElementById('nl-'+id);
+    if(active){ active.classList.add('active'); active.classList.remove('text-slate-400'); active.classList.add('text-slate-700'); }
+  }
+
+  // Reveal on scroll
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // Nav highlight
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id.replace('page-', '');
+        pages.forEach(p => {
+          const nl = document.getElementById('nl-'+p);
+          if(nl){ nl.classList.remove('active'); nl.classList.remove('text-slate-700'); nl.classList.add('text-slate-400'); }
+        });
+        const active = document.getElementById('nl-'+id);
+        if(active){ active.classList.add('active'); active.classList.remove('text-slate-400'); active.classList.add('text-slate-700'); }
+      }
+    });
+  }, { threshold: 0.3 });
+
+  pages.forEach(p => {
+    const el = document.getElementById('page-'+p);
+    if(el) navObserver.observe(el);
+  });
+</script>
+</body>
+</html>
