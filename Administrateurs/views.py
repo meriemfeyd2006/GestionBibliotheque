@@ -2,6 +2,8 @@ from django.contrib.auth import logout
 from django.shortcuts import render, redirect, get_object_or_404
 
 from Clients.models import Client
+from Empruntes.models import Emprunt
+from Reservations.models import Reservation
 from .forms import ClientForm
 
 
@@ -50,11 +52,13 @@ def commandes(request):
 
 
 def empreinte(request):
-    return render(request, 'admine/empreinte.html')
+    emprunts = Emprunt.objects.select_related('client', 'livre').all().order_by('-dateEmprunt')
+    return render(request, 'admine/emprunts.html', {'emprunts': emprunts})
 
 
 def reservations(request):
-    return render(request, 'admine/reservations.html')
+    reservations = Reservation.objects.select_related('client', 'livre').all().order_by('-dateReservation')
+    return render(request, 'admine/reservations.html', {'reservations': reservations})
 
 
 def paiements(request):

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emprunts - Administration</title>
+    <title>Réservations - Administration</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -151,7 +151,7 @@
                     <button id="sidebarToggle" class="p-2 rounded-lg hover:bg-slate-100 transition-colors">
                         <i class="fas fa-bars text-text-secondary"></i>
                     </button>
-                    <h1 class="text-xl font-semibold text-text-main">Gestion des Emprunts</h1>
+                    <h1 class="text-xl font-semibold text-text-main">Gestion des Réservations</h1>
                 </div>
             </header>
 
@@ -161,11 +161,11 @@
                     <div class="rounded-3xl bg-card-white border border-border-light p-6 shadow-sm">
                         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h2 class="text-2xl font-semibold text-text-main">Emprunts actifs</h2>
-                                <p class="text-sm text-text-secondary">Affiche les emprunts en cours avec les informations des clients.</p>
+                                <h2 class="text-2xl font-semibold text-text-main">Réservations actives</h2>
+                                <p class="text-sm text-text-secondary">Affiche les réservations avec les informations des clients.</p>
                             </div>
                             <div class="inline-flex items-center gap-3 text-sm text-text-secondary">
-                                <span class="px-3 py-2 rounded-full bg-primary/10 text-primary">Total : {{ emprunts|length }}</span>
+                                <span class="px-3 py-2 rounded-full bg-primary/10 text-primary">Total : {{ reservations|length }}</span>
                             </div>
                         </div>
                     </div>
@@ -177,29 +177,27 @@
                                     <th class="px-6 py-4">ID</th>
                                     <th class="px-6 py-4">Client</th>
                                     <th class="px-6 py-4">Livre</th>
-                                    <th class="px-6 py-4">Date Emprunt</th>
-                                    <th class="px-6 py-4">Retour Prévu</th>
-                                    <th class="px-6 py-4">Retour Réel</th>
+                                    <th class="px-6 py-4">Date Réservation</th>
+                                    <th class="px-6 py-4">Expiration</th>
                                     <th class="px-6 py-4">Statut</th>
                                     <th class="px-6 py-4">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-border-light">
-                                {% for emprunt in emprunts %}
+                                {% for reservation in reservations %}
                                     <tr class="hover:bg-primary/5">
-                                        <td class="px-6 py-4 font-medium text-text-main">{{ emprunt.id }}</td>
-                                        <td class="px-6 py-4">{{ emprunt.client.nom }} {{ emprunt.client.prenom }}</td>
-                                        <td class="px-6 py-4">{{ emprunt.livre.titre }}</td>
-                                        <td class="px-6 py-4">{{ emprunt.dateEmprunt }}</td>
-                                        <td class="px-6 py-4">{{ emprunt.dateRetourPrevue }}</td>
-                                        <td class="px-6 py-4">{{ emprunt.dateRetourReelle|default:"-" }}</td>
+                                        <td class="px-6 py-4 font-medium text-text-main">{{ reservation.id }}</td>
+                                        <td class="px-6 py-4">{{ reservation.client.nom }} {{ reservation.client.prenom }}</td>
+                                        <td class="px-6 py-4">{{ reservation.livre.titre }}</td>
+                                        <td class="px-6 py-4">{{ reservation.dateReservation }}</td>
+                                        <td class="px-6 py-4">{{ reservation.dateExpiration }}</td>
                                         <td class="px-6 py-4">
-                                            {% if emprunt.statut == 'en_cours' %}
-                                                <span class="px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs">En cours</span>
-                                            {% elif emprunt.statut == 'rendu' %}
-                                                <span class="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">Rendu</span>
-                                            {% elif emprunt.statut == 'en_retard' %}
-                                                <span class="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">En retard</span>
+                                            {% if reservation.statut == 'active' %}
+                                                <span class="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">Active</span>
+                                            {% elif reservation.statut == 'expiree' %}
+                                                <span class="px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">Expirée</span>
+                                            {% elif reservation.statut == 'annulee' %}
+                                                <span class="px-2 py-1 rounded-full bg-gray-100 text-gray-800 text-xs">Annulée</span>
                                             {% endif %}
                                         </td>
                                         <td class="px-6 py-4">
@@ -213,7 +211,7 @@
                                     </tr>
                                 {% empty %}
                                     <tr>
-                                        <td colspan="8" class="px-6 py-10 text-center text-text-secondary">Aucun emprunt enregistré pour le moment.</td>
+                                        <td colspan="7" class="px-6 py-10 text-center text-text-secondary">Aucune réservation enregistrée pour le moment.</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

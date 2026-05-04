@@ -64,6 +64,26 @@ def inscription(request):
     return render(request, 'library/inscription.html')
 
 
+def reserver_livre_view(request, livre_id):
+    from Reservations.views import reserver_livre
+    return reserver_livre(request, livre_id)
+
+
+def recuperer_livre_view(request, reservation_id):
+    from Reservations.views import recuperer_livre
+    return recuperer_livre(request, reservation_id)
+
+
+def mes_reservations_view(request):
+    from Reservations.views import mes_reservations
+    return mes_reservations(request)
+
+
+def mes_emprunts_view(request):
+    from Reservations.views import mes_emprunts
+    return mes_emprunts(request)
+
+
 def deconnexion(request):
     if request.method == 'POST':
         request.session.pop('client_email', None)
