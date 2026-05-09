@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'Paiements',
     'Commandes',
     'Categories',
-    'Utilisateurs',
     'Livres',
 ]
 

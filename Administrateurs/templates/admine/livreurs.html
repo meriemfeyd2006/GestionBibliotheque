@@ -1,0 +1,37 @@
+{% extends 'admine/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Gestion des Livreurs</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Adresse</th>
+                <th>Véhicule</th>
+                <th>Zone</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for livreur in livreurs %}
+            <tr>
+                <td>{{ livreur.nom }}</td>
+                <td>{{ livreur.prenom }}</td>
+                <td>{{ livreur.email }}</td>
+                <td>{{ livreur.telephone }}</td>
+                <td>{{ livreur.adresse }}</td>
+                <td>{{ livreur.vehicule }}</td>
+                <td>{{ livreur.zoneLivraison }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">Aucun livreur trouvé.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

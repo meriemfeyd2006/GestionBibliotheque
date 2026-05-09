@@ -1,0 +1,35 @@
+{% extends 'admine/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Gestion des Paiements</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Client</th>
+                <th>Livre</th>
+                <th>Montant</th>
+                <th>Date</th>
+                <th>Méthode</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for paiement in paiements %}
+            <tr>
+                <td>{{ paiement.id }}</td>
+                <td>{{ paiement.client.nom }} {{ paiement.client.prenom }}</td>
+                <td>{{ paiement.livre.titre }}</td>
+                <td>{{ paiement.montant }} DH</td>
+                <td>{{ paiement.datePaiement }}</td>
+                <td>{{ paiement.methode }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">Aucun paiement trouvé.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

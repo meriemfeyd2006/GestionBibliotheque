@@ -4,6 +4,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from Clients.models import Client
 from Empruntes.models import Emprunt
 from Reservations.models import Reservation
+from Livres.models import Livre
+from Commandes.models import Commande
+from Paiements.models import Paiement
+from Livreurs.models import Livreur
+from Categories.models import Categorie
 from .forms import ClientForm
 
 
@@ -44,11 +49,13 @@ def client_delete(request, pk):
 
 
 def livreurs(request):
-    return render(request, 'admine/livreurs.html')
+    livreurs = Livreur.objects.all().order_by('nom')
+    return render(request, 'admine/livreurs.html', {'livreurs': livreurs})
 
 
 def commandes(request):
-    return render(request, 'admine/commandes.html')
+    commandes = Commande.objects.select_related('client', 'livreur').prefetch_related('livres').all().order_by('-dateCommande')
+    return render(request, 'admine/commandes.html', {'commandes': commandes})
 
 
 def empreinte(request):
@@ -62,7 +69,18 @@ def reservations(request):
 
 
 def paiements(request):
-    return render(request, 'admine/paiements.html')
+    paiements = Paiement.objects.select_related('client', 'livre').all().order_by('-datePaiement')
+    return render(request, 'admine/paiements.html', {'paiements': paiements})
+
+
+def livres(request):
+    livres = Livre.objects.select_related('categorie').all().order_by('titre')
+    return render(request, 'admine/livres.html', {'livres': livres})
+
+
+def categories(request):
+    categories = Categorie.objects.all().order_by('nom')
+    return render(request, 'admine/categories.html', {'categories': categories})
 
 
 def admin_logout(request):

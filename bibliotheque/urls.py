@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('Library.urls')),
     path('admine/', include('Administrateurs.urls')),
+    path('paiements/', include('Paiements.urls')),
 ]
 # urls.py

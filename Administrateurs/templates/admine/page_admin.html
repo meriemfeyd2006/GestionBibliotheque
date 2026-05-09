@@ -112,9 +112,9 @@
 
                     <!-- Gestion Empreinte -->
                     <li>
-                        <a href="{% url 'admin_empreinte' %}" 
+                        <a href="{% url 'admin_emprunts' %}" 
                            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 
-                                  {% if request.resolver_match.url_name == 'admin_empreinte' %}
+                                  {% if request.resolver_match.url_name == 'admin_emprunts' %}
                                       bg-primary/10 text-primary
                                   {% else %}
                                       text-text-secondary hover:bg-border-lighter hover:text-text-main

@@ -1,0 +1,122 @@
+<!-- templates/admine/base.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Administration{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuration des couleurs personnalisées -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#14b8a6',
+                        'page-bg': '#f8fafc',
+                        'card-white': '#ffffff',
+                        'text-main': '#1e293b',
+                        'text-secondary': '#94a3b8',
+                        'border-light': '#e2e8f0',
+                        'border-lighter': '#f1f5f9',
+                        success: '#10b981',
+                        danger: '#f43f5e',
+                        'danger-dark': '#e11d48',
+                        accent: '#8b5cf6',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-page-bg text-text-main font-sans antialiased">
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-64 bg-card-white border-r border-border-light flex flex-col transition-all duration-300 ease-in-out">
+
+            <!-- Logo / Header Sidebar -->
+            <div class="h-16 flex items-center px-6 border-b border-border-light">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="font-bold text-lg text-text-main">AdminPanel</span>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-primary hover:text-white rounded-lg transition-colors duration-200">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'admin_clients' %}" class="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-primary hover:text-white rounded-lg transition-colors duration-200">
+                    <i class="fas fa-users"></i>
+                    <span>Clients</span>
+                </a>
+                <a href="{% url 'admin_livres' %}" class="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-primary hover:text-white rounded-lg transition-colors duration-200">
+                    <i class="fas fa-book"></i>
+                    <span>Livres</span>
+                </a>
+                <a href="{% url 'admin_commandes' %}" class="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-primary hover:text-white rounded-lg transition-colors duration-200">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Commandes</span>
+                </a>
+                <a href="{% url 'admin_paiements' %}" class="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-primary hover:text-white rounded-lg transition-colors duration-200">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Paiements</span>
+                </a>
+                <a href="{% url 'admin_emprunts' %}" class="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-primary hover:text-white rounded-lg transition-colors duration-200">
+                    <i class="fas fa-hand-holding"></i>
+                    <span>Emprunts</span>
+                </a>
+                <a href="{% url 'admin_reservations' %}" class="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-primary hover:text-white rounded-lg transition-colors duration-200">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Réservations</span>
+                </a>
+                <a href="{% url 'admin_livreurs' %}" class="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-primary hover:text-white rounded-lg transition-colors duration-200">
+                    <i class="fas fa-truck"></i>
+                    <span>Livreurs</span>
+                </a>
+                <a href="{% url 'admin_categories' %}" class="flex items-center gap-3 px-4 py-3 text-text-secondary hover:bg-primary hover:text-white rounded-lg transition-colors duration-200">
+                    <i class="fas fa-tags"></i>
+                    <span>Catégories</span>
+                </a>
+            </nav>
+
+            <!-- Logout Button -->
+            <div class="p-4 border-t border-border-light">
+                <form method="post" action="{% url 'admin_logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-danger hover:bg-danger hover:text-white rounded-lg transition-colors duration-200">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Déconnexion</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-auto">
+            <!-- Header -->
+            <header class="bg-card-white border-b border-border-light px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-text-main">{% block page_title %}Administration{% endblock %}</h1>
+                    <div class="flex items-center gap-4">
+                        <span class="text-text-secondary">Bienvenue, Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="p-6">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -9,8 +9,9 @@ urlpatterns = [
     path('clients/<int:pk>/delete/', views.client_delete, name='admin_client_delete'),
     path('livreurs/', views.livreurs, name='admin_livreurs'),
     path('commandes/', views.commandes, name='admin_commandes'),
-    path('empreinte/', views.empreinte, name='admin_empreinte'),
+    path('empreinte/', views.empreinte, name='admin_emprunts'),
     path('reservations/', views.reservations, name='admin_reservations'),
-    path('paiements/', views.paiements, name='admin_paiements'),
+    path('livres/', views.livres, name='admin_livres'),
+    path('categories/', views.categories, name='admin_categories'),
     path('logout/', views.admin_logout, name='admin_logout'),
 ]

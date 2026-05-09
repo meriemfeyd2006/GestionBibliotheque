@@ -1,0 +1,41 @@
+{% extends 'admine/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Gestion des Livres</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Auteur</th>
+                <th>ISBN</th>
+                <th>Année</th>
+                <th>Langue</th>
+                <th>Stock</th>
+                <th>Prix Original</th>
+                <th>Prix Symbolique</th>
+                <th>Catégorie</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for livre in livres %}
+            <tr>
+                <td>{{ livre.titre }}</td>
+                <td>{{ livre.Nom_Auteur }}</td>
+                <td>{{ livre.isbn }}</td>
+                <td>{{ livre.anneePublication }}</td>
+                <td>{{ livre.langue }}</td>
+                <td>{{ livre.stock }}</td>
+                <td>{{ livre.prixOriginal }} DH</td>
+                <td>{{ livre.prix_symbolique }} DH</td>
+                <td>{{ livre.categorie.nom if livre.categorie else 'N/A' }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9">Aucun livre trouvé.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

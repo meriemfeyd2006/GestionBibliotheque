@@ -1,0 +1,43 @@
+{% extends 'admine/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Gestion des Commandes</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Client</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Mode Paiement</th>
+                <th>Livreur</th>
+                <th>Livres</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for commande in commandes %}
+            <tr>
+                <td>{{ commande.id }}</td>
+                <td>{{ commande.client.nom }} {{ commande.client.prenom }}</td>
+                <td>{{ commande.dateCommande }}</td>
+                <td>{{ commande.total }} DH</td>
+                <td>{{ commande.status }}</td>
+                <td>{{ commande.modePaiement }}</td>
+                <td>{% if commande.livreur %}{{ commande.livreur.nom }} {{ commande.livreur.prenom }}{% else %}Non assigné{% endif %}</td>
+                <td>
+                    {% for livre in commande.livres.all %}
+                        {{ livre.titre }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">Aucune commande trouvée.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
